@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gaussflow"
+version = "0.1.0"
+description = "A minimal Gaussian workflow submitter."
+requires-python = ">=3.10"
+
+[project.scripts]
+gaussflow = "gaussflow.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
