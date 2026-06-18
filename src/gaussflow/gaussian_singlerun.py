@@ -25,7 +25,7 @@ def run_single(xyz, id=None, wfname="test", base_dir=None, target_properties=["x
     make_g16_input(xyz,id,base_dir=base_dir,wfname=wfname,nprocs=nprocs,mem=mem,charge=charge,multiplicity=multiplicity,route_line=route_line)
     env = os.environ.copy()
     env["OMP_NUM_THREADS"] = str(nprocs)
-    proc = subprocess.Popen(["g16", f'{id}.gjf', f'{id}.log'], cwd=base_dir / wfname, stderr=subprocess.DEVNULL, env=env)
+    proc = subprocess.Popen(["g16", f'mol_{id}.gjf', f'mol_{id}.log'], cwd=base_dir / wfname, stderr=subprocess.DEVNULL, env=env)
     proc.wait()
 
     success, results = analyze_g16_output(id,base_dir,wfname,target_properties)
@@ -33,8 +33,8 @@ def run_single(xyz, id=None, wfname="test", base_dir=None, target_properties=["x
         return success, results
     
     if remove_results:
-        os.remove(base_dir / wfname / f'{id}.gjf')
-        os.remove(base_dir / wfname / f'{id}.log')
+        os.remove(base_dir / wfname / f'mol_{id}.gjf')
+        os.remove(base_dir / wfname / f'mol_{id}.log')
         shutil.rmtree(base_dir / wfname)
 
     return success, results

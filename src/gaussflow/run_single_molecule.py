@@ -18,7 +18,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--id", type=int, required=True)
 
-    idx = parser.parse_args().idx
+    idx = parser.parse_args().id
 
     base_dir = Path(f"output/mol_{idx}")
     config = json.loads((base_dir / "config.json").read_text(encoding="utf-8"))
@@ -26,18 +26,21 @@ def main():
     properties["molecule"] = config["molecule"]
     out_file = base_dir / f"results_{idx}.out"
 
+    with open(out_file, "w") as f:
+        pass
+
     for item in config["workflow"]:
         with open(out_file, "a") as f:
             f.write(f"Running {item['name']}...\n")
         if item["tool"] == "geometry":
             if item["method"] == "default_v0.1.0":
                 success, results = smiles_to_xyz_MMFF(config["molecule"][item["structure_source"]])
-                properties[item["name"]] = output_to_property(results, item["parse"]["target_properties"])
+                properties[item["name"]] = results
 
         elif item["tool"] == "g16":
-            xyz = results
+            xyz = properties.copy()
             for inner in item["structure_source"].split(":")[::-1]:
-                xyz = results[inner]
+                xyz = xyz[inner]
             success, results = run_single(
                 xyz=xyz,
                 id=idx,

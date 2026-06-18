@@ -16,14 +16,14 @@ def main():
 
     molecules = load_molecules(config)
 
-    with open(Path(f"{config['output']['root']}/summary.csv"), "w", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(",".join([col.split(":")[0] for col in config["after_jobs"]["summary_columns"]]))
+    with open(Path(f"{config['output']['root']}/summary.csv"), "w", encoding="utf-8") as f_out:
+        writer = csv.writer(f_out)
+        writer.writerow([col for col in config["after_jobs"]["summary_columns"]])
         for mol in molecules:
             mol_id = mol["id"]
             row = []
-            with open(Path(f"{config['output']['root']}/mol_{mol_id}/properties.json"), "r", encoding="utf-8") as f:
-                properties = json.load(f)
+            with open(Path(f"{config['output']['root']}/mol_{mol_id}/properties.json"), "r", encoding="utf-8") as f_in:
+                properties = json.load(f_in)
                 for col in config["after_jobs"]["summary_columns"]:
                     item = properties.copy()
                     for key in col.split(":")[::-1]:

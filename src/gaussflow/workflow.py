@@ -4,7 +4,6 @@ from pathlib import Path
 
 from gaussflow.config import load_config, dump_config
 from gaussflow.molecule import load_molecules
-from gaussflow.gaussian_input import write_gaussian_input
 from gaussflow.scheduler import submit_after_jobs, write_slurm_script, submit_slurm_job
 
 
@@ -22,7 +21,6 @@ def submit_workflow(config_path):
         mol_config["molecule"] = mol
         os.makedirs(output_root / f"mol_{mol['id']}", exist_ok=True)
         dump_config(config=mol_config, config_path=output_root / f"mol_{mol['id']}" / "config.json")
-
         submit_script = write_slurm_script(
             output_root=output_root,
             id=mol["id"],

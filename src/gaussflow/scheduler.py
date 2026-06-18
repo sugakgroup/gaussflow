@@ -18,20 +18,20 @@ def write_slurm_script(output_root, id, config):
     mem = config.get("compute", {}).get("mem", "1GB")
     
     script = f"""#!/bin/bash
-        #SBATCH --job-name=mol_{id}
-        #SBATCH --partition={partition}
-        #SBATCH --nodelist={nodelist}
-        #SBATCH --nodes={nodes}
-        #SBATCH --ntasks={ntasks}
-        #SBATCH --cpus-per-task={cpus_per_task}
-        #SBATCH --mem={mem}
-        #SBATCH --output=/work/log/slurm-%j.out
-        #SBATCH --error=/work/log/slurm-%j.err
-        source /home/suga/miniconda3/etc/profile.d/conda.sh
-        conda activate CARBOT_base
-        
-        python gaussflow.run_single_molecule.py --id {id} > {log_path} 2>&1
-        """
+#SBATCH --job-name={id}
+#SBATCH --partition={partition}
+#SBATCH --nodelist={nodelist}
+#SBATCH --nodes={nodes}
+#SBATCH --ntasks={ntasks}
+#SBATCH --cpus-per-task={cpus_per_task}
+#SBATCH --mem={mem}
+#SBATCH --output=/work/log/slurm-%j.out
+#SBATCH --error=/work/log/slurm-%j.err
+source /home/suga/miniconda3/etc/profile.d/conda.sh
+conda activate CARBOT_base
+
+python -m gaussflow.run_single_molecule --id {id} > {log_path} 2>&1
+"""
 
     script_path.write_text(script, encoding="utf-8")
     script_path.chmod(0o755)
@@ -54,20 +54,20 @@ def submit_slurm_job(script_path):
 def write_after_jobs_script(output_root, config_path):
     script_path = output_root / "after_jobs.sh"
     script = f"""#!/bin/bash
-        #SBATCH --job-name=after_job
-        #SBATCH --partition=cpu
-        #SBATCH --nodelist=suga[01-12]
-        #SBATCH --nodes=1
-        #SBATCH --ntasks=1
-        #SBATCH --cpus-per-task=1
-        #SBATCH --mem=10GB
-        #SBATCH --output=/work/log/slurm-%j.out
-        #SBATCH --error=/work/log/slurm-%j.err
-        source /home/suga/miniconda3/etc/profile.d/conda.sh
-        conda activate CARBOT_base
-        
-        python gaussflow.run_parse_after_jobs.py --config {config_path}
-        """
+#SBATCH --job-name=after_job
+#SBATCH --partition=cpu
+#SBATCH --nodelist=suga[01-12]
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=10GB
+#SBATCH --output=/work/log/slurm-%j.out
+#SBATCH --error=/work/log/slurm-%j.err
+source /home/suga/miniconda3/etc/profile.d/conda.sh
+conda activate CARBOT_base
+
+python -m gaussflow.run_parse_after_jobs --config {config_path}
+"""
 
     script_path.write_text(script, encoding="utf-8")
     script_path.chmod(0o755)

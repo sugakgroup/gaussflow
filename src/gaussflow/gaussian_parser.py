@@ -18,23 +18,23 @@ PERIODIC_TABLE = {
 }
 
 START_TOKENS = {
-    "xyz": ["Standard orientation:", "Input orientation:"],
-    "freq": ["Harmonic frequencies (cm**-1)"],
+    "xyz": ["                         Standard orientation:", "                          Input orientation:"],
+    "freq": [" Harmonic frequencies (cm**-1)"],
     "energy": [" SCF Done:  "],
-    "td": ["Excited states from <AA,BB:AA,BB> singles matrix:"],
-    "pop": ["Population analysis using the SCF Density"],
-    "spin": ["<Sx>="],
+    "td": [" Excited states from <AA,BB:AA,BB> singles matrix:"],
+    "pop": ["            Population analysis using the SCF Density."],
+    "spin": [" <Sx>="],
     "stable": ["Eigenvectors of the stability matrix:"],
 }
 
 END_TOKENS = {
-    "xyz": ["Rotational constants (GHZ):", "Distance matrix (angstroms):"],
-    "freq": ["Thermochemistry"],
+    "xyz": [" Rotational constants (GHZ):", "                    Distance matrix (angstroms):"],
+    "freq": [" - Thermochemistry -"],
     "energy": [" SCF Done: "],
-    "td": ["SavETr:  write IOETrn="],
-    "pop": ["Mulliken charges:"],
-    "spin": ["<Sx>="],
-    "stable": ["The wavefunction is"],
+    "td": [" SavETr:  write IOETrn="],
+    "pop": [" Mulliken charges:"],
+    "spin": [" <Sx>="],
+    "stable": [" The wavefunction is"],
 }
 
 TARGET_TO_G16 = {
@@ -81,6 +81,7 @@ def analyze_g16_output(id,base_dir,wfname,target_properties=["xyz"]):
 
     ln = 0 
     for line in lines:
+        # print(line, reading_now, reading_detail)
         ln += 1
         # print(f"Line {ln}: {line.strip()}")
         # judge of success
@@ -92,7 +93,7 @@ def analyze_g16_output(id,base_dir,wfname,target_properties=["xyz"]):
         # activate
         if reading_now is None:
             for prop in g16_properties:
-                if any(token in line for token in START_TOKENS[prop]):
+                if any(line.startswith(token) for token in START_TOKENS[prop]):
                     # print(f"Start reading {prop}. (Line {ln})")
                     reading_now = prop
                     break
@@ -362,7 +363,7 @@ def analyze_g16_output(id,base_dir,wfname,target_properties=["xyz"]):
                 reading.append({"Eigenvalue": float(line_contents[4]), "<S**2>": float(line_contents[5][7:])})
         
         # deactivate
-        if reading_now in END_TOKENS and any(token in line for token in END_TOKENS[reading_now]):
+        if reading_now in END_TOKENS and any(line.startswith(token) for token in END_TOKENS[reading_now]):
             # print(f"Finished reading {reading_now}. (Line {ln})")
             result = None
             if reading_now == "xyz":
@@ -402,7 +403,7 @@ def output_to_property(results, target_properties):
             properties[target] = results["energy"]
 
         elif target == "imaginary_frequencies":
-            properties[target] = results["freq"][0]["frequencies"] > 0
+            properties[target] = results["freq"][0]["frequencies"] < 0
 
         elif target == "<S**2>":
             properties[target] = results["spin"]["S**2"]

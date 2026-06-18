@@ -17,7 +17,7 @@ def load_molecules(config):
 
         for i, row in enumerate(reader):
             molecules.append({key: value for key, value in row.items() if key != id_col})
-            if id_col is None and "id" not in molecules[-1]:
+            if id_col is None or "id" not in molecules[-1]:
                 molecules[-1]["id"] = i
 
     return molecules
