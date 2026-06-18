@@ -67,22 +67,19 @@ id,smiles
 
 ```json
 {
+  "project": {
+    "name": "workflow_T0_S1_T1"
+  },
   "input": {
-    "molecule_table": "molecules.csv",
+    "molecule_table": "input/molecules.csv",
     "id_column": "id"
   },
   "output": {
     "root": "output"
   },
   "compute": {
-    "nodelist": "suga[01-12]",
-    "nodes": 1,
-    "ntasks": 1,
     "cpus_per_task": 8,
     "mem": "8GB"
-  },
-  "scheduler": {
-    "partition": "cpu"
   },
   "workflow": [
     {
@@ -90,11 +87,12 @@ id,smiles
       "tool": "geometry",
       "method": "default_v0.1.0",
       "structure_source": "smiles"
+      "stop_on_fail": true
     },
     {
       "name": "opt",
       "tool": "g16",
-      "structure_source": "geom:xyz",
+      "structure_source": "xyz:geom",
       "route_line": "#p b3lyp/6-31g(d) opt",
       "charge": 0,
       "multiplicity": 1,
@@ -106,9 +104,9 @@ id,smiles
   ],
   "after_jobs": {
     "summary_columns": [
-      "molecule:id",
-      "molecule:smiles",
-      "opt:SCF_energy"
+      "id:molecule",
+      "smiles:molecule",
+      "SCF_energy:opt"
     ]
   }
 }
@@ -119,15 +117,25 @@ id,smiles
 ```text
 output/
   mol_0/
+    opt/
+      mol_0.gjf
+      mol_0.chk
+      mol_0.log
+    0.log
     config.json
+    properties.json
     submit.sh
     results_0.out
-    properties.json
   mol_1/
+    opt/
+      mol_1.gjf
+      mol_1.chk
+      mol_1.log
+    1.log
     config.json
+    properties.json
     submit.sh
     results_1.out
-    properties.json
   after_jobs.sh
   summary.csv
 ```
@@ -138,4 +146,4 @@ This is an early SugaGroup-oriented pre-release. The code is useful as a lightwe
 
 ## License
 
-No license has been specified yet.
+This project is licensed under the MIT License.
