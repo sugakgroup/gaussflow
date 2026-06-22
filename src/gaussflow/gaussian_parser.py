@@ -397,45 +397,54 @@ def output_to_property(results, target_properties):
 
     for target in target_properties:
         if target == "xyz":
-            properties[target] = results["xyz"]
+            properties[target] = (None if "xyz" not in results or results["xyz"] == "Fail" else results["xyz"])
 
         elif target == "SCF_energy":
-            properties[target] = results["energy"]
+            properties[target] = (None if "energy" not in results or results["energy"] == "Fail" else results["energy"])
 
         elif target == "imaginary_frequencies":
-            properties[target] = results["freq"][0]["frequencies"] < 0
+            properties[target] = (None if "freq" not in results or results["freq"] == "Fail" else results["freq"][0]["frequencies"] < 0)
 
         elif target == "<S**2>":
-            properties[target] = results["spin"]["S**2"]
+            properties[target] = (None if "spin" not in results or results["spin"] == "Fail" else results["spin"]["S**2"])
 
         elif target == "stable":
-            properties[target] = results["stable"][0]["Eigenvalue"] > 0
+            properties[target] = (None if "stable" not in results or results["stable"] == "Fail" else results["stable"][0]["Eigenvalue"]) > 0
         
         elif target == "excitation_energy_s1":
-            for td_results in results["td"]:
-                if "Singlet" in td_results["detail"]["Symmetry"]:
-                    properties[target] = td_results["detail"]["Energy"]
-                    break
+            if "td" not in results or results["td"] == "Fail":
+                properties[target] = None
+            else:
+                for td_results in results["td"]:
+                    if "Singlet" in td_results["detail"]["Symmetry"]:
+                        properties[target] = td_results["detail"]["Energy"]
+                        break
         
         elif target == "excitation_energy_t1":
-            for td_results in results["td"]:
-                if "Triplet" in td_results["detail"]["Symmetry"]:
-                    properties[target] = td_results["detail"]["Energy"]
-                    break
+            if "td" not in results or results["td"] == "Fail":
+                properties[target] = None
+            else:
+                for td_results in results["td"]:
+                    if "Triplet" in td_results["detail"]["Symmetry"]:
+                        properties[target] = td_results["detail"]["Energy"]
+                        break
         
         elif target == "s1-t1_gap":
             s1_energy = None
             t1_energy = None
-            for td_results in results["td"]:
-                if "Singlet" in td_results["detail"]["Symmetry"]:
-                    if s1_energy is None:
-                        s1_energy = td_results["detail"]["Energy"]
-                elif "Triplet" in td_results["detail"]["Symmetry"]:
-                    if t1_energy is None:
-                        t1_energy = td_results["detail"]["Energy"]
-            if s1_energy is not None and t1_energy is not None:
-                properties[target] = s1_energy - t1_energy
-            else:
+            if "td" not in results or results["td"] == "Fail":
                 properties[target] = None
+            else:
+                for td_results in results["td"]:
+                    if "Singlet" in td_results["detail"]["Symmetry"]:
+                        if s1_energy is None:
+                            s1_energy = td_results["detail"]["Energy"]
+                    elif "Triplet" in td_results["detail"]["Symmetry"]:
+                        if t1_energy is None:
+                            t1_energy = td_results["detail"]["Energy"]
+                if s1_energy is not None and t1_energy is not None:
+                    properties[target] = s1_energy - t1_energy
+                else:
+                    properties[target] = None
 
     return properties

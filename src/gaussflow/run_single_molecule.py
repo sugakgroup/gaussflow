@@ -69,6 +69,9 @@ def main():
             else:
                 f.write(f"----------------------------------------------------------------\n")
         
+        if not success and item.get("stop_on_fail", True):
+            break
+        
     # save results
     with open(base_dir / f"properties.json", "w") as f:
         json.dump(properties, f, indent=4)
